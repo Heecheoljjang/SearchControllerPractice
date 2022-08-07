@@ -13,8 +13,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var searchController = UISearchController(searchResultsController: nil )
-    
-    let list = [Int](1...100)
+    var page = 1
+    var list: [String] = []
+    var filteredList: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,21 +30,29 @@ class ViewController: UIViewController {
         title = "Test"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: nil)
         
-        searchController.searchBar.scopeButtonTitles = ["1", "2", "3", "4"]
+//        searchController.searchBar.scopeButtonTitles = ["1", "2", "3", "4"]
+        getMovieData(page: page)
 
     }
+    func getMovieData(page: Int) {
+        
+        GetMovieAPIManager.shared.getMovieList(page: page) { movieList in
+            self.list = movieList
+            print(self.list)
+        }
+    }
 }
+
+
 
 extension ViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
-        guard let text = searchController.searchBar.text else { return }
-        
-        //print(text)
-        
-        if searchController.searchBar.selectedScopeButtonIndex == 1 {
-            searchController.searchResultsController
-        }
+        guard let text = searchController.searchBar.text?.lowercased() else { return }
+                
+        self.filteredList = self.list.filter { $0.lowercased().contains(text) }
+
+        self.tableView.reloadData()
         
     }
     
@@ -55,13 +64,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ResultTableViewCell", for: indexPath) as? ResultTableViewCell else { return UITableViewCell() }
         
-        cell.label.text = "\(indexPath.row)"
+        cell.label.text = filteredList[indexPath.row]
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return list.count
+        return filteredList.count
     }
     
     

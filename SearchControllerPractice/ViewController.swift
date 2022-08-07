@@ -9,12 +9,21 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var searchController = UISearchController(searchResultsController: ResultViewController() )
+    //ResultViewController에 따로 테이블뷰를 추가해서 하면 안되는듯
+    @IBOutlet weak var tableView: UITableView!
+    
+    var searchController = UISearchController(searchResultsController: nil )
+    
+    let list = [Int](1...100)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         searchController.searchResultsUpdater = self
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UINib(nibName: "ResultTableViewCell", bundle: nil), forCellReuseIdentifier: "ResultTableViewCell")
 
         navigationItem.searchController = searchController
         title = "Test"
@@ -40,24 +49,19 @@ extension ViewController: UISearchResultsUpdating {
     
 }
 
-extension ViewController: UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-//        switch selectedScope {
-//        case 0:
-//            print("first")
-//        case 1:
-//            print("second")
-//        case 2:
-//            print("third")
-//        case 3:
-//            print("fourth")
-//        default :
-//            print("babo")
-//        }
-        print("123")
-        if searchBar.selectedScopeButtonIndex == 2 {
-            print("13")
-        }
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ResultTableViewCell", for: indexPath) as? ResultTableViewCell else { return UITableViewCell() }
+        
+        cell.label.text = "\(indexPath.row)"
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return list.count
     }
     
     
